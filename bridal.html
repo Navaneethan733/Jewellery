@@ -170,15 +170,36 @@
             z-index: 1002;
         }
 
+        .nav-icons a {
+            position: relative;
+            text-decoration: none;
+            color: #333;
+        }
+
         .nav-icons i {
             font-size: 1.2rem;
-            color: #333;
             cursor: pointer;
             transition: color 0.3s;
         }
 
         .nav-icons i:hover {
             color: #b8860b;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #b8860b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* Hamburger Menu */
@@ -373,6 +394,38 @@
         .wishlist:hover {
             background-color: #f8f0e5;
             border-color: #b8860b;
+        }
+
+        /* Cart Notification */
+        .cart-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background-color: #b8860b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .cart-notification.show {
+            display: flex;
         }
 
         /* Bridal Sets */
@@ -792,13 +845,22 @@
             <div class="nav-icons">
                 <a href="./404.html"><i class="fas fa-search"></i></a>
                 <a href="./login.html"><i class="fas fa-user"></i></a>
-                <a href="./404.html"><i class="fas fa-shopping-bag"></i></a>
+                <a href="./addtocart.html" style="position: relative;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </a>
             </div>
             <div class="menu-toggle">
                 <i class="fas fa-bars"></i>
             </div>
         </nav>
     </header>
+
+    <!-- Cart Notification -->
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Item added to cart!</span>
+    </div>
 
     <!-- Page Header -->
     <section class="page-header">
@@ -828,7 +890,7 @@
                     <p>Exquisite diamond necklace with cascading pearls, perfect for the traditional bride</p>
                     <div class="price">&#8377;1,850.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="1" data-name="Eternal Bliss Necklace" data-price="1850.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -842,7 +904,7 @@
                     <p>Elegant pearl drop earrings with diamond accents for a timeless look</p>
                     <div class="price">&#8377;720.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="2" data-name="Pearl Cascade Earrings" data-price="720.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -857,7 +919,7 @@
                     <p>Intricately designed gold bracelet with precious stones for the modern bride</p>
                     <div class="price">&#8377;1,100.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="3" data-name="Golden Harmony Bracelet" data-price="1100.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -871,7 +933,7 @@
                     <p>Stunning diamond tiara to make you feel like royalty on your special day</p>
                     <div class="price">&#8377;2,500.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="4" data-name="Royal Bridal Tiara" data-price="2500.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -889,7 +951,7 @@
                     <h3>Classic Elegance Set</h3>
                     <p>Complete set including necklace, earrings, and bracelet in timeless pearl and diamond design</p>
                     <div class="price">&#8377;3,800.00</div>
-                    <button class="add-to-cart">View Collection</button>
+                    <button class="add-to-cart" data-id="5" data-name="Classic Elegance Set" data-price="3800.00">Add to Cart</button>
                 </div>
             </div>
             <div class="set-card">
@@ -898,7 +960,7 @@
                     <h3>Modern Romance Set</h3>
                     <p>Contemporary design with geometric patterns, perfect for the fashion-forward bride</p>
                     <div class="price">&#8377;4,200.00</div>
-                    <button class="add-to-cart">View Collection</button>
+                    <button class="add-to-cart" data-id="6" data-name="Modern Romance Set" data-price="4200.00">Add to Cart</button>
                 </div>
             </div>
         </div>
@@ -983,6 +1045,63 @@
     </footer>
 
     <script>
+        // Cart functionality
+        let cart = [];
+        const cartCount = document.querySelector('.cart-count');
+        const cartNotification = document.getElementById('cartNotification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Initialize cart from localStorage
+        function initCart() {
+            const savedCart = localStorage.getItem('stacklyCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartCount();
+            }
+        }
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('stacklyCart', JSON.stringify(cart));
+        }
+
+        // Update cart count in header
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+
+        // Show cart notification
+        function showNotification(productName) {
+            notificationText.textContent = `${productName} added to cart!`;
+            cartNotification.classList.add('show');
+            
+            setTimeout(() => {
+                cartNotification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add item to cart
+        function addToCart(productId, productName, productPrice) {
+            // Check if item already exists in cart
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: parseFloat(productPrice),
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCartCount();
+            showNotification(productName);
+        }
+
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.nav-links').classList.toggle('active');
@@ -1025,14 +1144,30 @@
             });
         });
 
-        // Add to cart functionality
+        // Add to cart buttons functionality
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const productName = this.closest('.collection-card, .set-card').querySelector('h3').textContent;
-                alert(`Added ${productName} to your cart!`);
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = this.getAttribute('data-price');
+                
+                addToCart(productId, productName, productPrice);
+                
+                // Add visual feedback
+                const originalText = this.textContent;
+                this.textContent = 'Added!';
+                this.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.backgroundColor = '';
+                }, 1500);
             });
         });
+
+        // Initialize cart when page loads
+        document.addEventListener('DOMContentLoaded', initCart);
     </script>
 </body>
 </html>

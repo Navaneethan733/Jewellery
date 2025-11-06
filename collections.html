@@ -163,9 +163,14 @@
             gap: 20px;
         }
 
+        .nav-icons a {
+            position: relative;
+            text-decoration: none;
+            color: #333;
+        }
+
         .nav-icons i {
             font-size: 1.2rem;
-            color: #333;
             cursor: pointer;
             transition: color 0.3s;
         }
@@ -174,12 +179,60 @@
             color: #b8860b;
         }
 
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #b8860b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
         /* Hamburger Menu */
         .menu-toggle {
             display: none;
             font-size: 1.8rem;
             color: #333;
             cursor: pointer;
+        }
+
+        /* Cart Notification */
+        .cart-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background-color: #b8860b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .cart-notification.show {
+            display: flex;
         }
 
         /* Page Header */
@@ -342,7 +395,7 @@
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
             flex-grow: 1;
             margin-right: 10px;
         }
@@ -546,7 +599,7 @@
                         <a href="./home2.html">Home Page 2</a>
                     </div>
                 </li>
-                <li><a href="./collections.html">Collections</a></li>
+                <li><a href="./collections.html" class="active">Collections</a></li>
                 <li><a href="./bridal.html">Bridal</a></li>
                 <li><a href="./engagement.html">Engagement</a></li>
                 <li><a href="./about.html">About</a></li>
@@ -555,7 +608,10 @@
             <div class="nav-icons">
                 <a href="./404.html"><i class="fas fa-search"></i></a>
                 <a href="./login.html"><i class="fas fa-user"></i></a>
-                <a href="./404.html"><i class="fas fa-shopping-bag"></i></a>
+                <a href="./cart.html" style="position: relative;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count">0</span>
+                </a>
             </div>
             <div class="menu-toggle">
                 <i class="fas fa-bars"></i>
@@ -563,6 +619,11 @@
         </nav>
     </header>
 
+    <!-- Cart Notification -->
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Item added to cart!</span>
+    </div>
 
     <!-- Page Header -->
     <section class="page-header">
@@ -579,27 +640,27 @@
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-options">
-                <button class="filter-btn active">All</button>
-                <button class="filter-btn">Necklaces</button>
-                <button class="filter-btn">Earrings</button>
-                <button class="filter-btn">Bracelets</button>
-                <button class="filter-btn">Rings</button>
-                <button class="filter-btn">Bridal Sets</button>
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="necklaces">Necklaces</button>
+                <button class="filter-btn" data-filter="earrings">Earrings</button>
+                <button class="filter-btn" data-filter="bracelets">Bracelets</button>
+                <button class="filter-btn" data-filter="rings">Rings</button>
+                <button class="filter-btn" data-filter="bridal-sets">Bridal Sets</button>
             </div>
             <div class="sort-options">
-                <select>
-                    <option>Sort by: Featured</option>
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                    <option>Newest First</option>
+                <select id="sortSelect">
+                    <option value="featured">Sort by: Featured</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="newest">Newest First</option>
                 </select>
             </div>
         </div>
 
         <!-- Collection Grid -->
-        <div class="collection-grid">
+        <div class="collection-grid" id="collectionGrid">
             <!-- Product 1 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="necklaces">
                 <div class="collection-badge">Bestseller</div>
                 <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Eternal Love Necklace" class="collection-img">
                 <div class="collection-info">
@@ -607,28 +668,28 @@
                     <p>Exquisite diamond necklace for your special day</p>
                     <div class="price">&#8377;1,250.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="301" data-name="Eternal Love Necklace" data-price="1250.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 2 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="earrings">
                 <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Pearl Drop Earrings" class="collection-img">
                 <div class="collection-info">
                     <h3>Pearl Drop Earrings</h3>
                     <p>Elegant pearl earrings with diamond accents</p>
                     <div class="price">&#8377;680.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="302" data-name="Pearl Drop Earrings" data-price="680.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 3 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="bracelets">
                 <div class="collection-badge">New</div>
                 <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80" alt="Golden Harmony Bracelet" class="collection-img">
                 <div class="collection-info">
@@ -636,42 +697,42 @@
                     <p>Intricately designed gold bracelet with precious stones</p>
                     <div class="price">&#8377;950.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="303" data-name="Golden Harmony Bracelet" data-price="950.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 4 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="rings">
                 <img src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Diamond Solitaire Ring" class="collection-img">
                 <div class="collection-info">
                     <h3>Diamond Solitaire Ring</h3>
                     <p>Classic solitaire ring with brilliant cut diamond</p>
                     <div class="price">&#8377;1,850.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="304" data-name="Diamond Solitaire Ring" data-price="1850.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 5 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="earrings">
                 <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Rose Gold Earrings" class="collection-img">
                 <div class="collection-info">
                     <h3>Rose Gold Earrings</h3>
                     <p>Delicate rose gold earrings with pearl details</p>
                     <div class="price">&#8377;520.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="305" data-name="Rose Gold Earrings" data-price="520.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 6 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="bracelets">
                 <div class="collection-badge">Limited</div>
                 <img src="https://images.unsplash.com/photo-1588444650700-6c7f0c89d36b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Platinum Bracelet" class="collection-img">
                 <div class="collection-info">
@@ -679,35 +740,35 @@
                     <p>Luxurious platinum bracelet with diamond inlays</p>
                     <div class="price">&#8377;2,350.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="306" data-name="Platinum Bracelet" data-price="2350.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 7 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="bridal-sets">
                 <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Royal Necklace Set" class="collection-img">
                 <div class="collection-info">
                     <h3>Royal Necklace Set</h3>
                     <p>Complete bridal set with necklace and matching earrings</p>
                     <div class="price">&#8377;3,200.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="307" data-name="Royal Necklace Set" data-price="3200.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 8 -->
-            <div class="collection-card">
+            <div class="collection-card" data-category="necklaces">
                 <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Vintage Pearl Collection" class="collection-img">
                 <div class="collection-info">
                     <h3>Vintage Pearl Collection</h3>
                     <p>Timeless pearl jewellery with vintage-inspired design</p>
                     <div class="price">&#8377;1,750.00</div>
                     <div class="collection-actions">
-                        <button class="add-to-cart">Add to Cart</button>
+                        <button class="add-to-cart" data-id="308" data-name="Vintage Pearl Collection" data-price="1750.00">Add to Cart</button>
                         <button class="wishlist"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -772,6 +833,104 @@
     </footer>
 
     <script>
+        // Cart functionality
+        let cart = [];
+        const cartCount = document.querySelector('.cart-count');
+        const cartNotification = document.getElementById('cartNotification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Initialize cart from localStorage
+        function initCart() {
+            const savedCart = localStorage.getItem('stacklyCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartCount();
+            }
+        }
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('stacklyCart', JSON.stringify(cart));
+        }
+
+        // Update cart count in header
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+
+        // Show cart notification
+        function showNotification(productName) {
+            notificationText.textContent = `${productName} added to cart!`;
+            cartNotification.classList.add('show');
+            
+            setTimeout(() => {
+                cartNotification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add item to cart
+        function addToCart(productId, productName, productPrice) {
+            // Check if item already exists in cart
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: parseFloat(productPrice),
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCartCount();
+            showNotification(productName);
+        }
+
+        // Filter functionality
+        function filterProducts(category) {
+            const products = document.querySelectorAll('.collection-card');
+            
+            products.forEach(product => {
+                if (category === 'all' || product.dataset.category === category) {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+
+        // Sort functionality
+        function sortProducts(sortType) {
+            const grid = document.getElementById('collectionGrid');
+            const products = Array.from(grid.querySelectorAll('.collection-card'));
+            
+            products.sort((a, b) => {
+                const priceA = parseFloat(a.querySelector('.price').textContent.replace('₹', '').replace(',', ''));
+                const priceB = parseFloat(b.querySelector('.price').textContent.replace('₹', '').replace(',', ''));
+                
+                switch(sortType) {
+                    case 'price-low':
+                        return priceA - priceB;
+                    case 'price-high':
+                        return priceB - priceA;
+                    case 'newest':
+                        // For demo, we'll sort by presence of "new" badge
+                        const isANew = a.querySelector('.collection-badge')?.textContent === 'New';
+                        const isBNew = b.querySelector('.collection-badge')?.textContent === 'New';
+                        return isBNew - isANew;
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Re-append sorted products
+            products.forEach(product => grid.appendChild(product));
+        }
+
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.nav-links').classList.toggle('active');
@@ -807,10 +966,15 @@
                 // Add active class to clicked button
                 this.classList.add('active');
                 
-                // In a real implementation, you would filter the products here
-                // For this demo, we'll just show an alert
-                alert(`Filtering by: ${this.textContent}`);
+                // Filter products
+                const category = this.dataset.filter;
+                filterProducts(category);
             });
+        });
+
+        // Sort functionality
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            sortProducts(this.value);
         });
 
         // Wishlist buttons functionality
@@ -830,14 +994,30 @@
             });
         });
 
-        // Add to cart functionality
+        // Add to cart buttons functionality
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const productName = this.closest('.collection-card').querySelector('h3').textContent;
-                alert(`Added ${productName} to your cart!`);
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = this.getAttribute('data-price');
+                
+                addToCart(productId, productName, productPrice);
+                
+                // Add visual feedback
+                const originalText = this.textContent;
+                this.textContent = 'Added!';
+                this.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.backgroundColor = '';
+                }, 1500);
             });
         });
+
+        // Initialize cart when page loads
+        document.addEventListener('DOMContentLoaded', initCart);
     </script>
 </body>
 </html>
